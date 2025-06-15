@@ -7,7 +7,8 @@ console.log("Joining", test ? "test" : "spworlds");
 const bot = mineflayer.createBot({
 	host: test ? "51.83.49.23" : "sp.spworlds.ru",
 	port: test ? 25629 : null,
-	auth: "microsoft"
+	auth: "microsoft",
+	profilesFolder: "profiles",
 });
 
 bot.once("spawn", ()=>console.log("Logged in!"));
