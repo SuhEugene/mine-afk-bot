@@ -1,12 +1,12 @@
 const mineflayer = require('mineflayer')
 
-// const test = process.argv[2] ? process.argv[2] == "test" : true;
-const test = false;
-console.log("Joining", test ? "test" : "spworlds");
+const server = process.env.BOT_SERVER || "127.0.0.1";
+const port = parseInt(process.env.BOT_PORT, 10) || null;
+console.log("Joining", `${server}:${port ?? 25565}`);
 
 const bot = mineflayer.createBot({
-	host: test ? "51.83.49.23" : "sp.spworlds.ru",
-	port: test ? 25629 : null,
+	host: server,
+	port: port,
 	auth: "microsoft",
 	profilesFolder: "profiles",
 });
@@ -26,6 +26,7 @@ bot.on('kicked', (reason, ...args) => {
 	}, 180000);
 });
 bot.on('error', console.error);
+
 /*bot.on('chat', (username, message) => {
 	console.log(`<${username}> ${message}`);
 });*/
