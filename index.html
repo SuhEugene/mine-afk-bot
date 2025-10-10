@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <title>АФК-Бот</title>
+  <style>
+    :root {
+      --pico-form-element-spacing-vertical: .25rem;
+      --pico-form-element-spacing-horizontal: .75rem;
+    }
+
+    body {
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .cubes {
+      display: flex;
+      gap: 2px;
+    }
+
+    .cubes .cube {
+      height: 12px;
+      width: 12px;
+      box-shadow: inset 0 0 0 1px #00000080;
+      background-color: #00000030;
+    }
+
+    .cubes .cube--half {
+      width: 6px;
+      margin-left: -3px;
+    }
+
+    .cubes .cube--brown {
+      background-color: #a0522d;
+      margin-left: 0;
+    }
+
+    .cubes .cube--red {
+      background-color: #e53935;
+      margin-left: 0;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .spacer {
+      flex-grow: 1;
+    }
+
+    .mono {
+      font-family: var(--pico-font-family-monospace);
+      font-size: 0.8em;
+    }
+
+    button {
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+
+<body>
+  <article>
+    <header>
+      <h2 style="margin: 0; text-align: center;">{{USERNAME}}</h2>
+    </header>
+
+    <div><b>Подключен:</b> {{LOADED_AT}}</div>
+    <div><b>Сервер:</b> {{SERVER_IP}}</div>
+    <div><b>Версия:</b> {{VERSION}}</div>
+    <div><b>Пинг:</b> {{PING}}ms</div>
+    <div class="row"><b>Здровье:</b>
+      <div class="spacer"></div>{{HEALTH}}
+    </div>
+    <div class="row"><b>Голод:</b>
+      <div class="spacer"></div>{{FOOD}}
+    </div>
+
+    <footer style="text-align: center;">
+      <button id="reload" class="secondary">Перезагрузить</button>
+    </footer>
+  </article>
+
+  <script>
+    const reloadButton = document.getElementById('reload');
+    reloadButton.addEventListener('click', async () => {
+      reloadButton.setAttribute('aria-busy', 'true');
+      reloadButton.setAttribute('aria-label', 'Перезагрузка...');
+      reloadButton.innerText = 'Перезагрузка...';
+      reloadButton.disabled = true;
+      await fetch("/reload", {method: "POST"});
+      window.location.reload();
+    });
+  </script>
+</body>
+
+</html>
