@@ -47,7 +47,7 @@
       margin-left: 0;
     }
 
-    .row {
+    .row, #health, #food {
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -72,18 +72,19 @@
 <body>
   <article>
     <header>
-      <h2 style="margin: 0; text-align: center;">{{USERNAME}}</h2>
+      <h2 style="margin: 0; text-align: center;"><span data-sync="username"></span></h2>
     </header>
 
-    <div><b>Подключен:</b> {{LOADED_AT}}</div>
-    <div><b>Сервер:</b> {{SERVER_IP}}</div>
-    <div><b>Версия:</b> {{VERSION}}</div>
-    <div><b>Пинг:</b> {{PING}}ms</div>
+    <div><b>Статус:</b> <span data-sync="status"></span></div>
+    <div><b>Подключен:</b> <span data-sync="loadedAt"></span></div>
+    <div><b>Сервер:</b> <span data-sync="serverIp"></span></div>
+    <div><b>Версия:</b> <span data-sync="version"></span></div>
+    <div><b>Пинг:</b> <span data-sync="ping"></span>ms</div>
     <div class="row"><b>Здровье:</b>
-      <div class="spacer"></div>{{HEALTH}}
+      <div class="spacer"></div><div id="health"></div>
     </div>
     <div class="row"><b>Голод:</b>
-      <div class="spacer"></div>{{FOOD}}
+      <div class="spacer"></div><div id="food"></div>
     </div>
 
     <footer style="text-align: center;">
@@ -98,9 +99,69 @@
       reloadButton.setAttribute('aria-label', 'Перезагрузка...');
       reloadButton.innerText = 'Перезагрузка...';
       reloadButton.disabled = true;
-      await fetch("/reload", {method: "POST"});
-      window.location.reload();
+      await fetch("/reload", { method: "POST" });
+      await updateStatus();
+      reloadButton.removeAttribute('aria-busy');
+      reloadButton.removeAttribute('aria-label');
+      reloadButton.innerText = 'Перезагрузить';
+      reloadButton.disabled = false;
     });
+
+    function cubes(amount, color) {
+      const cubes = document.createElement('div');
+      cubes.classList.add('cubes');
+      for (let i = 0; i < 10; i++) {
+        if (amount >= 1) {
+          const el = document.createElement('div');
+          el.classList.add('cube');
+          el.classList.add(`cube--${color}`);
+          cubes.appendChild(el);
+        } else if (amount > 0) {
+          const el = document.createElement('div');
+          el.classList.add('cube');
+          el.classList.add(`cube--${color}`);
+          el.classList.add('cube--half');
+          cubes.appendChild(el);
+          const el2 = document.createElement('div');
+          el2.classList.add('cube');
+          el2.classList.add('cube--half');
+          cubes.appendChild(el2);
+        } else {
+          const el = document.createElement('div');
+          el.classList.add('cube');
+          cubes.appendChild(el);
+        }
+        amount--;
+      }
+      const mono = document.createElement('div');
+      mono.classList.add('mono');
+      mono.innerText = String((amount + 10) * 2).padStart(2, '0') + '/20';
+      return cubes.outerHTML + mono.outerHTML;
+    }
+
+    async function updateStatus() {
+      const data = await fetch("/status", { method: "GET" }).then(response => {
+        if (!response.ok) { return {}; }
+        return response.json();
+      });
+      const syncEls = document.querySelectorAll('[data-sync]');
+      syncEls.forEach(el => {
+        const key = el.dataset.sync;
+        if (key in data) {
+          el.innerText = data[key];
+        } else {
+          el.innerText = '---';
+        }
+      });
+
+      const health = document.getElementById('health');
+      health.innerHTML = cubes(data.health / 2, 'red');
+
+      const food = document.getElementById('food');
+      food.innerHTML = cubes(data.food / 2, 'brown');
+    }
+    setInterval(updateStatus, 2000);
+    updateStatus();
   </script>
 </body>
 
